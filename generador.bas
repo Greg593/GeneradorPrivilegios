@@ -1,4 +1,4 @@
-Attribute VB_Name = "generador"
+Attribute VB_Name = "Generador"
 Sub generaPrivilegios()
        Const formula  As String = "=BUSCAR(ALEATORIO.ENTRE(MIN(Miembros!$A$3:$A$31),MAX(Miembros!$A$3:$A$31)),Miembros!$A$3:$A$31,Miembros!$B$3:$B$31)"
        Const Predicadores As String = "=BUSCAR(ALEATORIO.ENTRE(MIN(Miembros!$A$3:$A$31),MAX(Miembros!$A$3:$A$31)),Miembros!$A$3:$A$31,Miembros!$B$3:$B$31)"
@@ -25,7 +25,7 @@ Sub generaPrivilegios()
        ' Prepara formato para colocar el título del mes + año
        Range("a1").NumberFormat = "mmmm yyyy"
        ' Formato para el Título del Mes
-       With Range("a1:e1")
+       With Range("a1:f1")
            .HorizontalAlignment = xlCenterAcrossSelection
            .VerticalAlignment = xlCenter
            .Font.Size = 20
@@ -33,7 +33,7 @@ Sub generaPrivilegios()
            .RowHeight = 35
        End With
        ' Formato para los títulos
-       With Range("a2:e2")
+       With Range("a2:f2")
            .ColumnWidth = 15
            .VerticalAlignment = xlCenter
            .HorizontalAlignment = xlCenter
@@ -47,9 +47,9 @@ Sub generaPrivilegios()
        Range("a2") = "Día"
        Range("b2") = "Actividad"
        Range("c2") = "Dirección"
-       ' Range("d2") = "Lectura"
-       Range("d2") = "Ofrenda"
-       Range("e2") = "Predica"
+       Range("d2") = "Lectura"
+       Range("e2") = "Ofrenda"
+       Range("f2") = "Predica"
 
        ' título del Mes + año
        Range("a1").Value = Application.Text(fechaEntrada, "mmmm yyyy")
@@ -73,7 +73,7 @@ Sub generaPrivilegios()
        ' Se coloca el primer día en la celda
        Contador = 0
        Do While diaSemana <> 0
-        If diaSemana = 1 Or diaSemana = 3 Or diaSema = 4 Or diaSemana = 5 Or diaSemana = 7 Then
+        If diaSemana = 1 Or diaSemana = 3 Or diaSemana = 5 Or diaSemana = 7 Then
             Range("a3").Value = StartDay + Contador
             Exit Do
         End If
@@ -94,7 +94,7 @@ Sub generaPrivilegios()
             End If
           ElseIf cell.Row <> 1 And seRepiteDia = 0 Then
             diaAnterior = Weekday(cell.Offset(-1, 0).Value)
-            If diaAnterior = 1 Or diaAnterior = 5 Then
+            If diaAnterior <> 7 Then
               cell.Value = cell.Offset(-1, 0).Value + 2
             Else
               cell.Value = cell.Offset(-1, 0).Value + 1
@@ -146,8 +146,6 @@ Sub generaPrivilegios()
                 noDomingos = noDomingos + 1
               Case 3
                 cell.Value = "Indagando las Escrituras"
-              Case 4
-                cell.Value = "Célula"
               Case 5
                 cell.Value = "Enseñanza Bíblica"
               Case 7
@@ -159,7 +157,7 @@ Sub generaPrivilegios()
         Next
 
       ' Formato para Privilegios
-      With Range("c3:e30")
+      With Range("c3:f30")
            .HorizontalAlignment = xlLeft
            .VerticalAlignment = xlCenter
            .Font.Size = 12
@@ -171,18 +169,33 @@ Sub generaPrivilegios()
       For Each cell In Range("c3:e30")
 
         'Para la fila 3
-        If cell.Row = 3 Then ' Dirección
+        If cell.Row = 3 Then
           If cell.Column = 3 Then
             cell.FormulaLocal = formula
-          ElseIf cell.Column = 4 Then ' Ofrenda
+          ElseIf cell.Column = 4 Then
             resultado = 0
             Do While resultado = 0
               cell.FormulaLocal = formula
               queTiene = cell.Value
               If queTiene <> "" Then
                 If cell.Offset(0, -1).Value <> queTiene Then
+                  resultado = 1
+                  fecha = cell.Offset(0, -3).Value
+                  celda = cell.Offset(0, 0)
+                  Call validaEspecial(fecha, celda, resultado)
+                End If
+              End If
+            Loop
+          ElseIf cell.Column = 5 Then
+            resultado = 0
+            Do While resultado = 0
+              cell.FormulaLocal = formula
+              queTiene = cell.Value
+              If queTiene <> "" Then
+                If cell.Offset(0, -1).Value <> queTiene And _
+                   cell.Offset(0, -2).Value <> queTiene Then
                       resultado = 1
-                      fecha = cell.Offset(0, -3).Value
+                      fecha = cell.Offset(0, -4).Value
                       celda = cell.Offset(0, 0)
                       Call validaEspecial(fecha, celda, resultado)
                 End If
@@ -193,14 +206,15 @@ Sub generaPrivilegios()
 
         'Para la fila 4
         If cell.Row = 4 Then
-          If cell.Column = 3 Then ' Dirección
+          If cell.Column = 3 Then
             resultado = 0
             Do While resultado = 0
               cell.FormulaLocal = formula
               queTiene = cell.Value
               If queTiene <> "" Then
                 If cell.Offset(-1, 0).Value <> queTiene And _
-                   cell.Offset(-1, 1).Value <> queTiene Then
+                   cell.Offset(-1, 1).Value <> queTiene And _
+                   cell.Offset(-1, 2).Value <> queTiene Then
                       resultado = 1
                       fecha = cell.Offset(0, -2).Value
                       celda = cell.Offset(0, 0)
@@ -208,17 +222,36 @@ Sub generaPrivilegios()
                 End If
               End If
             Loop
-          ElseIf cell.Column = 4 Then ' Ofrenda
+          ElseIf cell.Column = 4 Then
            resultado = 0
             Do While resultado = 0
               cell.FormulaLocal = formula
               queTiene = cell.Value
               If queTiene <> "" Then
-                If cell.Offset(-1, -1).Value <> queTiene And _
-                   cell.Offset(-1, 0).Value <> queTiene And _
+                If cell.Offset(-1, 0).Value <> queTiene And _
+                   cell.Offset(-1, 1).Value <> queTiene And _
+                   cell.Offset(-1, -1).Value <> queTiene And _
                    cell.Offset(0, -1).Value <> queTiene Then
                       resultado = 1
                       fecha = cell.Offset(0, -3).Value
+                      celda = cell.Offset(0, 0)
+                      Call validaEspecial(fecha, celda, resultado)
+                End If
+              End If
+            Loop
+          ElseIf cell.Column = 5 Then
+           resultado = 0
+            Do While resultado = 0
+              cell.FormulaLocal = formula
+              queTiene = cell.Value
+              If queTiene <> "" Then
+                If cell.Offset(-1, -2).Value <> queTiene And _
+                   cell.Offset(-1, -1).Value <> queTiene And _
+                   cell.Offset(-1, 0).Value <> queTiene And _
+                   cell.Offset(0, -2).Value <> queTiene And _
+                   cell.Offset(0, -1).Value <> queTiene Then
+                      resultado = 1
+                      fecha = cell.Offset(0, -4).Value
                       celda = cell.Offset(0, 0)
                       Call validaEspecial(fecha, celda, resultado)
                 End If
@@ -229,7 +262,7 @@ Sub generaPrivilegios()
 
         'Para la fila >4
         If cell.Row > 4 Then
-          If cell.Column = 3 Then ' Dirección
+          If cell.Column = 3 Then
             resultado = 0
             Do While resultado = 0
               cell.FormulaLocal = formula
@@ -248,7 +281,7 @@ Sub generaPrivilegios()
                 End If
               End If
             Loop
-          ElseIf cell.Column = 4 Then ' Ofrenda
+          ElseIf cell.Column = 4 Then
            resultado = 0
             Do While resultado = 0
               cell.FormulaLocal = formula
@@ -256,11 +289,34 @@ Sub generaPrivilegios()
               If queTiene <> "" Then
                 If cell.Offset(-2, -1).Value <> queTiene And _
                    cell.Offset(-2, 0).Value <> queTiene And _
+                   cell.Offset(-2, 1).Value <> queTiene And _
                    cell.Offset(-1, -1).Value <> queTiene And _
                    cell.Offset(-1, 0).Value <> queTiene And _
+                   cell.Offset(-1, 1).Value <> queTiene And _
                    cell.Offset(0, -1).Value <> queTiene Then
                       resultado = 1
                       fecha = cell.Offset(0, -3).Value
+                      celda = cell.Offset(0, 0)
+                      Call validaEspecial(fecha, celda, resultado)
+                End If
+              End If
+            Loop
+          ElseIf cell.Column = 5 Then
+           resultado = 0
+            Do While resultado = 0
+              cell.FormulaLocal = formula
+              queTiene = cell.Value
+              If queTiene <> "" Then
+                If cell.Offset(-2, -2).Value <> queTiene And _
+                   cell.Offset(-2, -1).Value <> queTiene And _
+                   cell.Offset(-2, 0).Value <> queTiene And _
+                   cell.Offset(-1, -2).Value <> queTiene And _
+                   cell.Offset(-1, -1).Value <> queTiene And _
+                   cell.Offset(-1, 0).Value <> queTiene And _
+                   cell.Offset(0, -2).Value <> queTiene And _
+                   cell.Offset(0, -1).Value <> queTiene Then
+                      resultado = 1
+                      fecha = cell.Offset(0, -4).Value
                       celda = cell.Offset(0, 0)
                       Call validaEspecial(fecha, celda, resultado)
                 End If
@@ -283,10 +339,10 @@ Sub generaPrivilegios()
 
       'Genera Predicadores
       yaPaso = 0
-      For Each cell In Range("e3:e30")
-        If cell.Offset(0, -4).Value <> "" Then
-          noDiafecha = Weekday(cell.Offset(0, -4).Value)
-          fecha = cell.Offset(0, -4).Value
+      For Each cell In Range("f3:f30")
+        If cell.Offset(0, -5).Value <> "" Then
+          noDiafecha = Weekday(cell.Offset(0, -5).Value)
+          fecha = cell.Offset(0, -5).Value
           Select Case noDiafecha
             Case 1
                 noSemana = Format(fecha, "ww")
@@ -336,7 +392,7 @@ Sub generaPrivilegios()
        Application.ScreenUpdating = True
        Exit Sub
 MyErrorTrap:
-       MsgBox "NO ingresaste correctamente la fecha o hubo un Error." _
+       MsgBox "NO ingresaste correctamente la fecha." _
            & Chr(13) & "Digita correctamente el mes" _
            & " (o utiliza un nombre abreviado por 3 letras)" _
            & Chr(13) & "y 4 digitos para el año"
@@ -377,4 +433,5 @@ Sub validaEspecial(fecha, celda, resultado)
     End Select
     resultado = result
 End Sub
+
 
