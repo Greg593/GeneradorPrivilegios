@@ -1,10 +1,6 @@
-# Forma de Uso
-El generador se basa en una lista de personas, las cuales están en la "Hoja 2"
-
-
 # Generador de Privilegios para Iglesias
 
-Genera privilegios para las Iglesias en Formato Excel, es basado en una lista de personas, las cuales tienen distintos privilegios o atributos.
+Genera privilegios para las Iglesias en Formato Excel, es basado en una lista de personas, las cuales tienen distintos privilegios o atributos, las cuales están en la "Hoja 2" del libro.
 
 Por ejemplo lo siguiente:
 
